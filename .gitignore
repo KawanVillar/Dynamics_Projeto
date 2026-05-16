@@ -1,0 +1,14 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# msbuild output directories
+/bin
+/obj
+
+# vs intermediate directory
+/.vs
+
+# MSBuild Binary and Structured Log
+*.binlog
+
+# Assinatura do assembly - manter local
+Dynamics_Projeto.snk
