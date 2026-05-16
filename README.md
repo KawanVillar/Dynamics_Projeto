@@ -36,6 +36,21 @@ dotnet build Dynamics_Projeto.csproj
 
 Se o build terminar sem erros, o projeto esta pronto para ser versionado.
 
+## Como implantar no Dataverse
+
+Depois de compilar, o caminho mais comum para publicar o plugin e:
+
+1. Gerar a DLL a partir do projeto.
+2. Registrar a DLL no ambiente do Dataverse com uma ferramenta como o Plugin Registration Tool.
+3. Criar ou atualizar o step do plugin na entidade correta.
+4. Conferir o modo de execucao, a etapa do pipeline e os atributos utilizados na logica.
+
+### Observacoes importantes
+
+- O plugin de duplicidade de veiculos roda em `opportunity` no estágio `PreOperation`.
+- O plugin de validacao de contato roda em `contact` no estágio `PreOperation` e em modo sincronico.
+- Se o repositório for publico, mantenha a chave `.snk` apenas localmente.
+
 ## Como publicar no GitHub
 
 ### 1. Criar o repositório local
