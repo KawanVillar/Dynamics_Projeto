@@ -1,13 +1,13 @@
 # Dynamics_Projeto
 
-Projeto de plugins para Microsoft Dataverse / Dynamics 365, com foco em validacoes de dados e bloqueio de duplicidade de oportunidades para veiculos.
+Projeto de plugins para Microsoft Dataverse / Dynamics 365, com foco em validacao de dados e bloqueio de duplicidade de oportunidades para veiculos.
 
-## O que este projeto faz
+## Visao geral
 
 Este repositório contem dois plugins principais:
 
-- **ContactPreOperationValidationPlugin**: valida campos do contato antes da gravação.
-- **OpportunityBloqueioDuplicidadeVeiculoPlugin**: impede duplicidade de oportunidades abertas para o mesmo veiculo.
+- `ContactPreOperationValidationPlugin`: valida campos do contato antes da gravação.
+- `OpportunityBloqueioDuplicidadeVeiculoPlugin`: impede duplicidade de oportunidades abertas para o mesmo veiculo.
 
 ## Tecnologias usadas
 
@@ -19,11 +19,33 @@ Este repositório contem dois plugins principais:
 
 ## Estrutura do projeto
 
-- `Dynamics_Projeto.csproj`: arquivo principal do projeto.
+- `Dynamics_Projeto.csproj`: projeto principal.
 - `Dynamics Projeto.sln`: solucao do Visual Studio.
 - `PluginBase.cs`: base compartilhada do plugin.
-- `Validação de Dados.cs`: validacoes de campos do contato.
-- `Bloqueio de duplicatas Veiculos.cs`: bloqueio de duplicidade por veiculo.
+- `Validação de Dados.cs`: regras de validacao de contato.
+- `Bloqueio de duplicatas Veiculos.cs`: regra de bloqueio de oportunidade duplicada.
+
+## Plugins incluidos
+
+| Plugin | Entidade | Message | Estagio | Modo | Regra principal |
+| --- | --- | --- | --- | --- | --- |
+| `ContactPreOperationValidationPlugin` | `contact` | `Create` / `Update` | `PreOperation` (20) | Sincrono | Valida `firstname`, `emailaddress1` e `telephone1` |
+| `OpportunityBloqueioDuplicidadeVeiculoPlugin` | `opportunity` | `Create` / `Update` | `PreOperation` (20) | Sincrono | Bloqueia oportunidades abertas com o mesmo `klima_veiculos` |
+
+## Regras de validacao
+
+### ContactPreOperationValidationPlugin
+
+- `firstname`: obrigatorio.
+- `emailaddress1`: validado somente quando informado.
+- `telephone1`: deve conter apenas 10 ou 11 digitos quando informado.
+
+### OpportunityBloqueioDuplicidadeVeiculoPlugin
+
+- Verifica se a oportunidade esta sendo criada ou atualizada.
+- Procura outras oportunidades abertas com o mesmo veiculo.
+- Ignora o proprio registro no `Update`.
+- Se encontrar duplicidade, lança erro com mensagem de bloqueio.
 
 ## Como compilar
 
@@ -43,13 +65,22 @@ Depois de compilar, o caminho mais comum para publicar o plugin e:
 1. Gerar a DLL a partir do projeto.
 2. Registrar a DLL no ambiente do Dataverse com uma ferramenta como o Plugin Registration Tool.
 3. Criar ou atualizar o step do plugin na entidade correta.
-4. Conferir o modo de execucao, a etapa do pipeline e os atributos utilizados na logica.
+4. Conferir message, stage, mode e os atributos usados na logica.
 
-### Observacoes importantes
+### Configuracao sugerida dos steps
 
-- O plugin de duplicidade de veiculos roda em `opportunity` no estágio `PreOperation`.
-- O plugin de validacao de contato roda em `contact` no estágio `PreOperation` e em modo sincronico.
-- Se o repositório for publico, mantenha a chave `.snk` apenas localmente.
+- `ContactPreOperationValidationPlugin`
+	- Entidade: `contact`
+	- Message: `Create` e `Update`
+	- Stage: `PreOperation` (`20`)
+	- Mode: `Synchronous` (`0`)
+
+- `OpportunityBloqueioDuplicidadeVeiculoPlugin`
+	- Entidade: `opportunity`
+	- Message: `Create` e `Update`
+	- Stage: `PreOperation` (`20`)
+	- Mode: `Synchronous` (`0`)
+	- Pre Image no `Update`: `PreImage` com o campo `klima_veiculos`
 
 ## Como publicar no GitHub
 
@@ -85,7 +116,7 @@ git push -u origin main
 
 ## Dicas para o primeiro push
 
-- Verifique se o `.gitignore` esta ignorando `bin/` e `obj/`.
+- Verifique se o `.gitignore` esta ignorando `bin/`, `obj/` e `.vs/`.
 - Confirme se a sua conta GitHub esta conectada ao VS Code.
 - Se o push pedir autenticacao, use o navegador ou o fluxo da extensao GitHub.
 
